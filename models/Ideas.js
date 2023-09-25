@@ -8,6 +8,7 @@ const ideaSchema = new mongoose.Schema({
     required: true,
     ref: 'user',
   },
+  
   hoverable: {
     type: Boolean,
     default: true,
