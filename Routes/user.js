@@ -110,16 +110,25 @@ router.put('/updateUser', fetchUser, async (req, res) => {
   try {
     const userId = req.user.id;
 
+    // Create an object to hold the fields to update
     const updatedUserData = {};
-    if (req.body.newUsername) {
-      updatedUserData.name = req.body.newUsername;
+
+    // Check if each field is provided in the request and add it to the updatedUserData object
+    if (req.body.name) {
+      updatedUserData.name = req.body.name;
     }
-    if (req.body.newEmail) {
-      updatedUserData.email = req.body.newEmail;
+    if (req.body.email) {
+      updatedUserData.email = req.body.email;
     }
-    if (req.body.newContact) {
-      updatedUserData.contact = req.body.newContact;
+    if (req.body.contact) {
+      updatedUserData.contact = req.body.contact;
     }
+
+    // Check if any fields are provided for update
+    if (Object.keys(updatedUserData).length === 0) {
+      return res.status(400).json({ message: 'No fields to update provided' });
+    }
+
     const result = await User.findOneAndUpdate(
       { _id: userId },
       updatedUserData,
@@ -133,14 +142,13 @@ router.put('/updateUser', fetchUser, async (req, res) => {
     }
   } catch (error) {
     if (error.code === 11000) {
-      res.status(400).json({ message: 'Updated data is already in use' });
+      // Handle duplicate key error
+      res.status(400).json({ message: 'Contact number already exists' });
     } else {
       console.error('Error updating user:', error);
       res.status(500).json({ message: 'Server error' });
     }
   }
 });
-
-
 
 module.exports = router;
