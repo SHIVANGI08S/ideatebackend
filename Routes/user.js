@@ -109,12 +109,17 @@ try {
 router.put('/updateUser', fetchUser, async (req, res) => {
   try {
     const userId = req.user.id;
-    const updatedUserData = {
-      name: req.body.name,
-      email: req.body.email,
-      contact: req.body.contact,
-    };
 
+    const updatedUserData = {};
+    if (req.body.newUsername) {
+      updatedUserData.name = req.body.newUsername;
+    }
+    if (req.body.newEmail) {
+      updatedUserData.email = req.body.newEmail;
+    }
+    if (req.body.newContact) {
+      updatedUserData.contact = req.body.newContact;
+    }
     const result = await User.findOneAndUpdate(
       { _id: userId },
       updatedUserData,
@@ -128,14 +133,14 @@ router.put('/updateUser', fetchUser, async (req, res) => {
     }
   } catch (error) {
     if (error.code === 11000) {
-      // Handle duplicate key error
-      res.status(400).json({ message: 'Contact number already exists' });
+      res.status(400).json({ message: 'Updated data is already in use' });
     } else {
       console.error('Error updating user:', error);
       res.status(500).json({ message: 'Server error' });
     }
   }
 });
+
 
 
 module.exports = router;
