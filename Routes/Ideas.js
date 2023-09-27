@@ -77,7 +77,7 @@ router.delete('/deleteIdea/:id', fetchUser, [], async (req, res) => {
         idea = await Ideas.findByIdAndDelete(req.params.id);
         res.status(200).send('Idea has been deleted')
     } catch (error) {
-        console.error(error.message);
+        console.error(error.message); 
         res.status(500).send('Internal Server error');
     }
 });

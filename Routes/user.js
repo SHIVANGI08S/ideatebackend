@@ -70,9 +70,11 @@ router.post('/login', [
     const{email, password} = req.body; 
     try {
       let user = await User.findOne({email});
+
       if(!user){
       return res.status(400).json({error:'Please try to login with correct credentials' })
       }
+      
       const passCompare = await bcrypt.compare(password,user.password);
 
       if(!passCompare){
@@ -107,24 +109,33 @@ try {
 router.put('/updateUser', fetchUser, async (req, res) => {
   try {
     const userId = req.user.id;
-    const user = await User.findById(userId);
+    const updatedUserData = {
+      name: req.body.name,
+      email: req.body.email,
+      contact: req.body.contact,
+    };
 
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    const result = await User.findOneAndUpdate(
+      { _id: userId },
+      updatedUserData,
+      { new: true, upsert: true }
+    );
+
+    if (result) {
+      res.status(200).json({ message: 'User information updated successfully' });
+    } else {
+      res.status(404).json({ message: 'User not found' });
     }
-
-    user.name = req.body.name; 
-    user.email = req.body.email;
-    user.contact = req.body.contact;
-
-    // Save the updated user data
-    await user.save();
-
-    res.status(200).json({ message: 'User information updated successfully' });
   } catch (error) {
-    console.error('Error updating user:', error);
-    res.status(500).json({ message: 'Server error' });
+    if (error.code === 11000) {
+      // Handle duplicate key error
+      res.status(400).json({ message: 'Contact number already exists' });
+    } else {
+      console.error('Error updating user:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
   }
 });
+
 
 module.exports = router;
